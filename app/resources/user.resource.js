@@ -1,5 +1,11 @@
 let indexResource = {
-    nama:1,
+    password:0,
+    birthDate: {
+        $dateToString: {
+          format: "%d/%m/%Y",
+          date: "$createdAt"
+        }
+      }
 };
 
 let viewResource = {};

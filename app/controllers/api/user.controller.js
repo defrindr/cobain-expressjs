@@ -3,17 +3,26 @@ let {
     indexResource,
     viewResource
 } = require("app/resource/user.resource");
+let {
+    generateToken
+} = require('helper/jwt.auth.handler');
+const controllerCore = require("../../../core/controller.core");
 
-class User {
+
+class User extends controllerCore {
     constructor() {
+        super();
+        
         this._schema = userModel;
         this._model = this._schema.getModel();
     }
 
     async index(req, res, next) {
-        let users = await this._model.find({}, viewResource);
+        const { page = 1, limit = 20 } = req.query;
 
-        return res.success("Mendapatkan Data", users);
+        let paginates = await this.paginate({}, page, limit);
+
+        return res.sendSuccess("Mendapatkan Data", paginates);
     }
 
     async view(req, res, next) {
@@ -21,18 +30,29 @@ class User {
             let user = await this._model.findOne({
                 username: req.body.username
             });
-            let isMatch = await user.comparePassword(req.body.password);
 
-            if (isMatch) {
-                return res.sendSuccess({
-                    success: true,
-                    message: "Login Sukses",
-                    token: "token"
-                });
+            if (user) {
+                let isMatch = await user.comparePassword(req.body.password);
+                if (isMatch === true) {
+                    let token = generateToken({username: user.username});
+                    res.sendSuccess({
+                        success: true,
+                        message: "Login Sukses",
+                        token: token,
+                    });
+                    return;
+                }
             }
-            res.sendError(400, "User / Password Invalid");
+
+            res.sendError(400, "User atau password salah");
+            return;
         } catch (err) {
-            res.sendError(400, errorParser(err));
+            if(err.errors){
+                err=errorParser(err);
+                res.sendError(400, err);
+            }else{
+                res.sendError(500, (process.env.IS_DEBUG.toLowerCase()=='true') ? err.message : "Telah terjadi kesalahan");
+            }
             return;
         }
     }
@@ -43,7 +63,13 @@ class User {
         try {
             await model.save();
         } catch (err) {
-            res.sendError(400, errorParser(err));
+            if(err.errors){
+                err=errorParser(err);
+                res.sendError(400, err);
+            }else{
+                res.sendError(500, (process.env.IS_DEBUG.toLowerCase()=='true') ? err.message : "Telah terjadi kesalahan");
+            }
+
             return;
         }
 

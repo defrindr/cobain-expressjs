@@ -1,11 +1,14 @@
 exports.errorParser = function (err) {
-    let msg = err.message;
+  let msg = err.message;
 
-    msg = msg.substring(msg.indexOf(':') + 1).trim().split(",").map(m => {
-        m = m.trim();
-        return m.split(":").map(_m => _m.trim())[1];
+  msg = msg
+    .substring(msg.indexOf(":") + 1)
+    .trim()
+    .split(",")
+    .map((m) => {
+      m = m.trim();
+      return m.split(":").map((_m) => _m.trim())[1];
     });
 
-    return msg.join("\n");
-
-}
+  return msg.join("\n");
+};

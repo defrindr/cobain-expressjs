@@ -1,32 +1,26 @@
 class Controller {
-    constructor() {
+  constructor() {
+    this._model = null;
+  }
 
-    }
+  async paginate(query = {}, page = 1, limit = 20) {
+    let data = await this._model
+      .find({})
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+    const count = await this._model.countDocuments();
 
-    resError(code, message, error) {
-        if (typeof message == "string") {
-            message = {
-                success: false,
-                code: code,
-                message: message,
-                error: error
-            }
-        }
-
-        return res.status(code).json(message);
-    }
-
-    resSuccess(message) {
-        if (typeof message == "string") {
-            message = {
-                success: false,
-                code: code,
-                message: message,
-            }
-        }
-
-        return res.status(200).json(message);
-    }
+    return {
+      data: data,
+      _meta: {
+        perPage: limit,
+        totalData: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+      },
+    };
+  }
 }
 
-module.exports = new Controller();
+module.exports = Controller;
