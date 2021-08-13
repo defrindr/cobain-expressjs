@@ -91,7 +91,6 @@ class App {
         // catch 404 and forward to error handler
         app.use(middleware.notFoundHandler);
     
-
         // error handler
         app.use(function (err, req, res, next) {
             // set locals, only providing error in development
