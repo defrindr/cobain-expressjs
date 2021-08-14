@@ -6,7 +6,27 @@ class Model {
     this.db = mongoose;
     mongoose_custom_message(this.db);
     this.connection = this.db.connection;
-    // this._db = this;
+  }
+
+  /**
+   * Simplify Unique method moongose
+   * @param {String} model Model Name
+   * @param {String} Obj Find Query
+   * @returns
+   */
+  unique(model, field_name) {
+    return {
+      validator: async function (v) {
+        let Obj = {};
+        Obj[field_name] = v;
+        let result = await this.db
+          .model(model)
+          .findOne(Obj)
+          .then((data) => !data);
+        return result;
+      },
+      message: this.db.Error.messages.general.unique,
+    };
   }
 
   getFields() {
