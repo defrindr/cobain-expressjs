@@ -1,5 +1,13 @@
 module.exports = function () {
   return function (req, res, next) {
+    function notAcceptable(message) {
+      return res.status(406).json({
+        success: false,
+        code: 406,
+        message: message ? message : "Not Acceptable",
+      });
+    }
+
     res.sendError = function (code, message = null) {
       let codes = {
         100: "Continue",
@@ -66,18 +74,20 @@ module.exports = function () {
         510: "Not Extended", // RFC 2774
         511: "Network Authentication Required", // RFC 6585
       };
-      if (req.headers["content-type"] || req.baseUrl.startsWith("/api")) {
-        if (
-          req.headers["content-type"].toLowerCase() == "application/json" ||
-          req.baseUrl.startsWith("/api")
-        ) {
-          res.status(code).json({
-            success: false,
-            message: message || codes[code] || "Error unidentified",
-            code: code,
-          });
-        }
+
+      if (
+        req.headers["content-type"] == undefined ||
+        (req.headers["content-type"].toLowerCase() != "application/json" &&
+          req.route.path.startsWith("/api") == false)
+      ) {
+        notAcceptable("Content Type doesnt match");
       }
+
+      return res.status(code).json({
+        success: false,
+        message: message || codes[code] || "Error unidentified",
+        code: code,
+      });
     };
 
     res.sendSuccess = function (message, data = null) {
@@ -85,6 +95,7 @@ module.exports = function () {
         var response = {
           success: true,
           message: message,
+          code: 200,
         };
 
         if (data != null) {
@@ -98,20 +109,15 @@ module.exports = function () {
         var response = message;
       }
 
-      if (req.headers["content-type"] || req.baseUrl.startsWith("/api")) {
-        if (req.headers["content-type"] === undefined) {
-            return res.json({
-                'success': false,
-                'code': 406,
-                'message': 'Content Type is empty'
-            });
-        }else if (
-          req.headers["content-type"].toLowerCase() == "application/json" ||
-          req.baseUrl.startsWith("/api")
-        ) {
-          return res.json(response);
-        }
+      if (
+        req.headers["content-type"] == undefined ||
+        (req.headers["content-type"].toLowerCase() != "application/json" &&
+          req.route.path.startsWith("/api") == false)
+      ) {
+        notAcceptable("Content Type doesnt match");
       }
+      
+      return res.status(200).json(response);
     };
     next();
   };
