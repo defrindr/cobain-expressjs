@@ -1,12 +1,16 @@
-let indexResource = {
-    password:0,
-    birthDate: {
+let indexResource = [
+  {
+    $project: {
+      username: 1,
+      createdAt: {
         $dateToString: {
           format: "%d/%m/%Y",
-          date: "$createdAt"
-        }
-      }
-};
+          date: "$createdAt",
+        },
+      },
+    },
+  },
+];
 
 let viewResource = {};
 
