@@ -13,33 +13,13 @@ class User extends BaseModel {
           trim: true,
           index: true,
           required: true,
-          validate: {
-            validator: function (v) {
-              return this.db
-                .model("user")
-                .findOne({
-                  email: v,
-                })
-                .then((user) => !user);
-            },
-            message: this.db.Error.messages.general.unique,
-          },
+          validate: this.unique("user", "username"),
         },
         email: {
           type: String,
           trim: true,
           match: email,
-          validate: {
-            validator: function (v) {
-              return this.db
-                .model("user")
-                .findOne({
-                  email: v,
-                })
-                .then((user) => !user);
-            },
-            message: this.db.Error.messages.general.unique,
-          },
+          validate: this.unique("user", "email"),
           index: true,
           required: true,
         },
