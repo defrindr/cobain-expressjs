@@ -1,10 +1,5 @@
-var express = require('express');
-var api = require('./api/index');
-var web = require('./web/index');
+var express = require("express");
+const RegisterRoute = require("../../core/register.controller");
 var router = express.Router();
 
-
-router.use('/api', api);
-router.use('/', web);
-
-module.exports = router;
+module.exports = RegisterRoute(router);
