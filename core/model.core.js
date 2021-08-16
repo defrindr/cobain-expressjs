@@ -4,8 +4,11 @@ var mongoose_custom_message = require("helper/error.mongoose.validation");
 class Model {
   constructor() {
     this.db = mongoose;
-    mongoose_custom_message(this.db);
     this.connection = this.db.connection;
+    this.tableName = "";
+
+    // register custom message
+    mongoose_custom_message(this.db);
   }
 
   /**
@@ -50,6 +53,20 @@ class Model {
     });
 
     return sequenceDoc.sequence_value;
+  }
+
+  getModel() {
+    return this.db.model(this.tableName, this._schema);
+  }
+
+  register() {
+    this._schema.method("toJSON", function () {
+      const { __v, _id, ...object } = this.toObject();
+      object.id = _id;
+      return object;
+    });
+
+    return this;
   }
 }
 
