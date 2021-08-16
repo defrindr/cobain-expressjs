@@ -1,14 +1,13 @@
-var middleware = require("app/middleware/index");
-var express = require("express");
+var middleware = require("../app/middleware/index");
+const express = require("express");
+let router = express.Router();
 const RegisterRoute = require("../core/register.controller");
-var router = express.Router();
 
 module.exports = function (config) {
   const { app } = config;
 
   // register routes
-  app.use("/", router);
-  RegisterRoute(router);
+  app.use("/", RegisterRoute(router));
 
   // catch 404 and forward to error handler
   app.use(middleware.notFoundHandler);
