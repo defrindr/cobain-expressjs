@@ -18,6 +18,7 @@ For Lazy Developers
 
 - RBAC based on route link
 - MVC Generator
+- ORM Model
 
 ## Contribution
 
