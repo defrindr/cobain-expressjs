@@ -1,10 +1,9 @@
 let userModel = require("app/model/user.model");
 let { generateToken } = require("helper/jwt.auth.handler");
-const controllerCore = require("../../../../core/controller.core");
-const { Log } = require("../../../middleware/Log.middleware");
-const { indexResource } = require("../../../resources/user.resource");
+const controllerCore = require("core/controller.core");
+const { Log } = require("app/middleware/Log.middleware");
 
-class UserController extends controllerCore {
+class UserControllerBase extends controllerCore {
   constructor() {
     super();
 
@@ -29,9 +28,9 @@ class UserController extends controllerCore {
   }
 
   async actionIndex(req, res, next) {
-    let paginates = await this.paginate(req, null, indexResource);
+    let paginates = await this.paginate(req);
 
-    return res.sendSuccess("Mendapatkan Data", paginates);
+    return res.apiSuccess("Mendapatkan Data", paginates);
   }
 
   async actionLogin(req, res, next) {
@@ -44,7 +43,7 @@ class UserController extends controllerCore {
         let isMatch = await user.comparePassword(req.body.password);
         if (isMatch === true) {
           let token = generateToken({ username: user.username });
-          res.sendSuccess({
+          res.apiSuccess({
             success: true,
             message: "Login Sukses",
             token: token,
@@ -53,14 +52,14 @@ class UserController extends controllerCore {
         }
       }
 
-      res.sendError(400, "User atau password salah");
+      res.apiError(400, "User atau password salah");
       return;
     } catch (err) {
       if (err.errors) {
         err = errorParser(err);
-        res.sendError(400, err);
+        res.apiError(400, err);
       } else {
-        res.sendError(500, err.message);
+        res.apiError(500, err.message);
       }
       return;
     }
@@ -71,13 +70,17 @@ class UserController extends controllerCore {
 
     try {
       await model.save();
-      return res.sendSuccess("User berhasil ditambahkan");
+      return res.apiDefault({
+        success: true,
+        code: 201,
+        message: "User berhasil ditambahkan",
+      });
     } catch (err) {
       if (err.errors) {
         err = errorParser(err);
-        res.sendError(400, err);
+        res.apiError(400, err);
       } else {
-        return res.sendError(500, err.message);
+        return res.apiError(500, err.message);
       }
 
       return;
@@ -88,11 +91,11 @@ class UserController extends controllerCore {
     try {
       await this._model.findByIdAndUpdate(request.params.id, request.body);
       await this._model.save();
-      res.send(food);
+      res.apiError(food);
     } catch (error) {
-      return res.sendError(400, "Terjadi kesalahan");
+      return res.apiError(400, "Terjadi kesalahan");
     }
   }
 }
 
-module.exports = UserController;
+module.exports = UserControllerBase;
