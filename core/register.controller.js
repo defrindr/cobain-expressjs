@@ -1,17 +1,17 @@
-// base path untuk seluruh file controller
-const BasePath = "app/controllers/";
-const ControllerSuffix = ".controller.js";
-
 // register glob untuk mengambil seluruh file controller
 const glob = require("glob");
 const Controller = require("./controller.core");
+
+// base path untuk seluruh file controller
+const BasePath = "app/controllers/";
+const ControllerSuffix = ".controller.js";
 
 /**
  * Mengembalikan seluruh file controller yang berada didalam BasePath
  * @returns {Array}
  */
 function getAllControllerFiles() {
-  return glob.sync(BasePath + "**/*.js");
+  return glob.sync(BasePath + "**/*" + ControllerSuffix);
 }
 
 /**
