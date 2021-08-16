@@ -6,6 +6,7 @@ const { email } = require("app/component/validator");
 class User extends BaseModel {
   constructor() {
     super();
+    this.tableName = "user";
     this._schema = new this.db.Schema(
       {
         username: {
@@ -33,12 +34,6 @@ class User extends BaseModel {
         timestamps: true,
       }
     );
-
-    this._schema.method("toJSON", function () {
-      const { __v, _id, ...object } = this.toObject();
-      object.id = _id;
-      return object;
-    });
 
     this._schema.pre("save", function (next) {
       var user = this;
@@ -70,10 +65,6 @@ class User extends BaseModel {
       }
       return false;
     };
-  }
-
-  getModel() {
-    return this.db.model("user", this._schema);
   }
 }
 
